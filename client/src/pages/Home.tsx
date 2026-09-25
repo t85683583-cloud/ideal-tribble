@@ -1,25 +1,135 @@
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
-import { Streamdown } from 'streamdown';
+import { useEffect, useMemo, useState } from "react";
+import {
+  ArrowDown,
+  ArrowRight,
+  ArrowUpRight,
+  BadgeCheck,
+  BarChart3,
+  Check,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  CircleDollarSign,
+  Clock3,
+  Code2,
+  Eye,
+  Gavel,
+  Globe2,
+  HandCoins,
+  Layers3,
+  LockKeyhole,
+  Menu,
+  MessageSquare,
+  PackageCheck,
+  PanelTop,
+  Play,
+  RefreshCw,
+  Search,
+  ShieldCheck,
+  Sparkles,
+  Store,
+  Tag,
+  Users,
+  WalletCards,
+  X,
+} from "lucide-react";
+import { architectureLayers, architectureModules, buyerSteps, navItems, pillars, roadmap } from "@/data/content";
+import { ArrowLink, CheckRow, SectionHeading, TinyTag, Window } from "@/components/site/SitePrimitives";
+import { SiteHeader } from "@/components/site/SiteHeader";
 
-/**
- * All content in this page are only for example, replace with your own feature implementation
- * When building pages, remember your instructions in Frontend Best Practices, Design Guide and Common Pitfalls
- */
-export default function Home() {
-  // If theme is switchable in App.tsx, we can implement theme toggling like this:
-  // const { theme, toggleTheme } = useTheme();
+const formatTime = (total: number) => {
+  const hours = Math.floor(total / 3600).toString().padStart(2, "0");
+  const minutes = Math.floor((total % 3600) / 60).toString().padStart(2, "0");
+  const seconds = Math.floor(total % 60).toString().padStart(2, "0");
+  return `${hours}:${minutes}:${seconds}`;
+};
 
-  return (
-    <div className="min-h-screen flex flex-col">
-      <main>
-        {/* Example: lucide-react for icons */}
-        <Loader2 className="animate-spin" />
-        Example Page
-        {/* Example: Streamdown for markdown rendering */}
-        <Streamdown>Any **markdown** content</Streamdown>
-        <Button variant="default">Example Button</Button>
-      </main>
+function HeroMockup() {
+  return <div className="hero-device" aria-label="Mockup de página de produto BidX">
+    <div className="hero-device-top"><span className="device-brand">Bid<span>X</span></span><span className="device-pill"><span className="signal-dot" /> fluxo planejado</span></div>
+    <div className="hero-product-grid">
+      <div className="product-visual"><div className="visual-grid" /><div className="product-orbit"><span>BX</span></div><span className="visual-label">PRODUTO<br /><b>01 / 04</b></span></div>
+      <div className="product-summary"><TinyTag tone="blue">compra direta</TinyTag><h3>Console portátil<br />Edição especial</h3><p className="product-meta">Loja Exemplo <span>•</span> Entrega acompanhada</p><div className="product-price">R$ 89,90 <span>à vista</span></div><div className="product-actions"><button>Comprar agora <ArrowUpRight size={15} /></button><button className="secondary-action"><Gavel size={14} /> Dar lance</button></div><div className="product-trust"><span><ShieldCheck size={14} /> Pagamento protegido</span><span><BadgeCheck size={14} /> 98% positivas</span></div></div>
     </div>
-  );
+    <div className="hero-device-footer"><span><Eye size={13} /> 184 pessoas visualizaram</span><span><LockKeyhole size={13} /> Proteção BidX <sup>proposta</sup></span></div>
+  </div>;
+}
+
+function FlowStrip({ onSelect, selected }: { onSelect: (label: string) => void; selected: string }) {
+  return <div className="flow-strip" role="list" aria-label="Fluxo proposto da compra">
+    {buyerSteps.map((step, index) => { const Icon = step.icon; return <div className="flow-step-wrap" key={step.label}>
+      <button className={`flow-step ${selected === step.label ? "is-selected" : ""}`} onClick={() => onSelect(step.label)} role="listitem"><span className="flow-icon"><Icon size={17} /></span><span><b>{step.label}</b><small>{step.caption}</small></span></button>
+      {index < buyerSteps.length - 1 && <ArrowRight className="flow-arrow" size={18} />}
+    </div>; })}
+  </div>;
+}
+
+function BuyerProductMockup() {
+  const [activeStep, setActiveStep] = useState("Produto");
+  const explanation = useMemo(() => ({
+    Produto: "O comprador encontra contexto antes de decidir: preço, reputação, modalidade e o que acontece depois.",
+    "Checkout BidX": "O checkout concentra pagamento, informações da compra e próximos passos em uma única leitura.",
+    Transação: "A proposta é acompanhar o pedido com estados visíveis, evitando que a negociação desapareça após o pagamento.",
+    Entrega: "A entrega termina com confirmação do comprador e abre espaço para avaliação baseada em uma transação real.",
+  }[activeStep]), [activeStep]);
+  return <div className="buyer-demo-grid"><Window label="experiência do comprador" className="buyer-window"><div className="buyer-product-head"><div className="buyer-art"><div className="buyer-art-lines" /><span>BX</span></div><div className="buyer-product-copy"><div className="mock-breadcrumb">Marketplace <span>/</span> Eletrônicos</div><h3>Console portátil</h3><p className="seller-line"><span className="avatar avatar-blue">LE</span> Loja Exemplo <BadgeCheck size={14} /></p><div className="buyer-price">R$ 89,90 <small>à vista</small></div><div className="buyer-buttons"><button>Comprar agora</button><button className="outline-button"><Gavel size={14} /> Dar lance</button></div></div></div><div className="buyer-window-bottom"><span><ShieldCheck size={15} /> Pagamento protegido</span><span><PackageCheck size={15} /> Compra acompanhada</span><span><MessageSquare size={15} /> Suporte BidX</span></div></Window><div className="buyer-flow-card"><span className="eyebrow">Fluxo de compra</span><h3>Uma compra com começo, meio e fim visíveis.</h3><FlowStrip onSelect={setActiveStep} selected={activeStep} /><p className="flow-explanation"><span className="explanation-index">0{buyerSteps.findIndex(step => step.label === activeStep) + 1}</span>{explanation}</p></div></div>;
+}
+
+function SellerDashboardMockup() {
+  const bars = [38, 54, 48, 73, 57, 88, 70, 96, 81, 100, 92, 112];
+  return <Window label="central do vendedor" className="seller-window"><div className="seller-layout"><aside className="seller-sidebar"><div className="seller-logo"><span>Bid</span><b>X</b></div><div className="seller-nav-label">Minha loja</div>{["Dashboard", "Produtos", "Vendas", "Leilões", "Conversas", "Avaliações", "Estatísticas"].map((item, index) => <div className={`seller-nav-item ${index === 0 ? "active" : ""}`} key={item}><span className="seller-nav-icon">{[BarChart3, Tag, PackageCheck, Gavel, MessageSquare, BadgeCheck, CircleDollarSign][index] && (() => { const I = [BarChart3, Tag, PackageCheck, Gavel, MessageSquare, BadgeCheck, CircleDollarSign][index]; return <I size={14} />; })()}</span>{item}</div>)}<div className="seller-nav-label seller-bottom-label">Financeiro</div><div className="seller-nav-item"><WalletCards size={14} /> Saldo</div><div className="seller-nav-item"><ArrowUpRight size={14} /> Retiradas</div></aside><div className="seller-main"><div className="seller-main-top"><div><span className="mock-kicker">terça, 25 de setembro</span><h3>Olá, Loja Exemplo.</h3></div><button className="seller-new-button"><span>+</span> Novo anúncio</button></div><div className="seller-stats">{[["Vendas", "R$ 12.840", "+18,4%"], ["Pedidos", "184", "+12"], ["Avaliação", "4.9", "de 5"], ["Produtos ativos", "32", "+4"]].map(stat => <div className="seller-stat" key={stat[0]}><span>{stat[0]}</span><b>{stat[1]}</b><small>{stat[2]}</small></div>)}</div><div className="seller-analytics"><div className="chart-card"><div className="chart-heading"><div><span className="mock-kicker">desempenho</span><h4>Vendas no período</h4></div><button>Últimos 12 meses <ChevronDown size={13} /></button></div><div className="chart-area"><div className="chart-y"><span>15k</span><span>10k</span><span>5k</span><span>0</span></div><div className="bar-chart">{bars.map((bar, index) => <div className="chart-bar-wrap" key={index}><div className="chart-bar" style={{ height: `${bar}%` }} /><span>{["O", "N", "D", "J", "F", "M", "A", "M", "J", "J", "A", "S"][index]}</span></div>)}</div></div></div><div className="activity-card"><div className="chart-heading"><div><span className="mock-kicker">atividade recente</span><h4>Últimos pedidos</h4></div><ArrowUpRight size={15} /></div>{[["#18472", "Console portátil", "R$ 89,90"], ["#18461", "Pack de presets", "R$ 42,00"], ["#18439", "Teclado mecânico", "R$ 159,00"]].map(order => <div className="order-row" key={order[0]}><span className="order-avatar">{order[0].slice(-2)}</span><div><b>{order[1]}</b><small>{order[0]} · pagamento aprovado</small></div><strong>{order[2]}</strong></div>)}</div></div><div className="demo-caption"><span className="demo-dot" /> Indicadores ilustrativos para demonstrar a experiência futura do vendedor.</div></div></div></Window>;
+}
+
+function AuctionDemo() {
+  const [seconds, setSeconds] = useState(2 * 3600 + 14 * 60 + 38);
+  const [bid, setBid] = useState(1260);
+  useEffect(() => { const timer = window.setInterval(() => setSeconds(value => value > 0 ? value - 1 : 0), 1000); return () => window.clearInterval(timer); }, []);
+  const bidValue = (amount: number) => `R$ ${amount.toLocaleString("pt-BR")}`;
+  return <div className="auction-demo"><div className="auction-hero-card"><div className="auction-product-art"><span className="art-grid-line line-one" /><span className="art-grid-line line-two" /><div className="console-shape"><div className="console-screen">BIDX</div><div className="console-stick left" /><div className="console-stick right" /><i className="console-button a" /><i className="console-button b" /></div><span className="auction-art-label">COLLECT / 01</span></div><div className="auction-info"><div className="auction-heading"><TinyTag tone="lime">leilão ativo</TinyTag><span className="auction-views"><Eye size={14} /> 42 acompanhando</span></div><h3>Console portátil</h3><p>Um exemplo de como o leilão pode deixar estado, ritmo e decisão no mesmo quadro.</p><div className="auction-price-row"><div><span>Lance atual</span><strong>{bidValue(bid - 20)}</strong></div><div><span>Próximo lance</span><strong className="lime-text">{bidValue(bid)}</strong></div></div><div className="auction-countdown"><Clock3 size={17} /><span>Tempo restante</span><b>{formatTime(seconds)}</b></div><button className="auction-bid-button" onClick={() => setBid(value => value + 20)}>Dar lance de {bidValue(bid)} <ArrowUpRight size={16} /></button><small className="auction-demo-note">Interação demonstrativa — nenhum lance real é enviado.</small></div></div><div className="auction-history"><div className="history-heading"><div><span className="eyebrow">Histórico de lances</span><h3>Transparência em cada movimento.</h3></div><span className="bid-count">12 lances</span></div><div className="history-list">{[["Usuário A", "R$ 1.240", "agora"], ["Usuário B", "R$ 1.220", "há 2 min"], ["Usuário C", "R$ 1.200", "há 5 min"]].map((item, index) => <div className={`history-item ${index === 0 ? "leading" : ""}`} key={item[0]}><span className="history-number">0{index + 1}</span><span className="history-user"><span className="mini-avatar">{item[0].slice(-1)}</span>{item[0]}{index === 0 && <TinyTag tone="lime">na frente</TinyTag>}</span><strong>{item[1]}</strong><small>{item[2]}</small></div>)}</div></div></div>;
+}
+
+function ArchitectureDiagram() {
+  return <div className="architecture-diagram"><div className="architecture-core"><div className="core-mark">X</div><div><span className="eyebrow">núcleo do produto</span><h3>BidX</h3></div></div><div className="architecture-lines"><i /><i /><i /><i /><i /><i /></div><div className="architecture-modules">{architectureModules.map(({ label, icon: Icon, tone }) => <div className={`architecture-module tone-${tone}`} key={label}><Icon size={14} /><span>{label}</span></div>)}</div><div className="architecture-layers">{architectureLayers.map(layer => <div className="architecture-layer" key={layer.label}><span className="layer-label">{layer.label}</span><div>{layer.items.map(item => <span key={item}>{item}</span>)}</div></div>)}</div></div>;
+}
+
+export default function Home() {
+  const [showMenu, setShowMenu] = useState(false);
+  const [activeRoadmap, setActiveRoadmap] = useState(0);
+  const [showPlanDetails, setShowPlanDetails] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  useEffect(() => { const onScroll = () => { const max = document.documentElement.scrollHeight - window.innerHeight; setScrollProgress(max ? (window.scrollY / max) * 100 : 0); }; window.addEventListener("scroll", onScroll, { passive: true }); onScroll(); return () => window.removeEventListener("scroll", onScroll); }, []);
+  return <div className="site-shell" id="top">
+    <div className="scroll-progress" style={{ width: `${scrollProgress}%` }} />
+    <SiteHeader />
+    <main>
+      <section className="hero-section"><div className="hero-ambient" /><div className="container hero-grid"><div className="hero-copy"><div className="hero-kicker"><span className="kicker-line" /> Plano de evolução / 2026</div><h1>Marketplace.<br /><span>Leilões.</span><br />Economia digital.</h1><p className="hero-subtitle">Uma nova evolução do BidX: um marketplace completo para comprar, vender, negociar e participar de leilões em uma única plataforma.</p><div className="hero-actions"><a className="button button-primary" href="#visao">Explorar o plano <ArrowDown size={16} /></a><a className="text-link" href="#roadmap">Ver roadmap <ArrowUpRight size={15} /></a></div><div className="hero-proof"><span><span className="proof-mark"><Check size={12} /></span> Visão de produto</span><span><span className="proof-mark"><Check size={12} /></span> Fluxos planejados</span><span><span className="proof-mark"><Check size={12} /></span> Base escalável</span></div></div><div className="hero-visual"><div className="visual-annotation annotation-top"><span className="annotation-line" /> <span>01 / produto<br /><b>contexto antes da ação</b></span></div><HeroMockup /><div className="visual-annotation annotation-bottom"><span>02 / confiança<br /><b>estado visível por etapa</b></span> <span className="annotation-line" /></div></div></div><div className="container hero-footer"><span>BidX / produto em evolução</span><span className="hero-footer-center">Construir a base certa antes de escalar.</span><span>Scroll para explorar <ArrowDown size={14} /></span></div></section>
+
+      <section className="section vision-section" id="visao"><div className="container"><SectionHeading eyebrow="01 / visão" title="De um marketplace para uma plataforma completa" description="O próximo BidX não é uma coleção de features. É uma sequência de capacidades que aumenta a confiança a cada camada." /><div className="vision-track"><div className="track-line" />{["BidX atual", "Marketplace", "Leilões", "Produtos digitais", "Transações protegidas", "Ecossistema de vendedores"].map((item, index) => <div className={`vision-node ${index === 0 ? "current" : ""}`} key={item}><span className="vision-node-dot">{index === 0 ? "01" : `0${index + 1}`}</span><div><strong>{item}</strong><small>{["Ponto de partida", "Descoberta e compra", "Negociação aberta", "Novos formatos", "Confiança em fluxo", "Crescimento com contexto"][index]}</small></div></div>)}</div><div className="vision-callout"><div className="callout-mark">→</div><p><b>O princípio:</b> cada etapa deve resolver uma necessidade real antes de adicionar a próxima camada.</p><ArrowLink href="#roadmap">Ver a ordem de desenvolvimento</ArrowLink></div></div></section>
+
+      <section className="section dark-section how-section" id="produto"><div className="container"><SectionHeading dark eyebrow="02 / como funcionará" title="Uma transação que não desaparece depois do pagamento" description="O fluxo planejado conecta comprador, plataforma e vendedor em uma leitura simples — da descoberta à confirmação." /><div className="how-layout"><div className="how-flow-panel"><div className="flow-panel-head"><span className="eyebrow">Fluxo proposto</span><TinyTag tone="lime">intermediado</TinyTag></div><div className="vertical-flow">{[["01", "Comprador", "Escolhe e compara", Users], ["02", "Checkout BidX", "Pagamento e contexto", WalletCards], ["03", "Entrega", "Digital, manual ou física", PackageCheck], ["04", "Confirmação", "Transação concluída", BadgeCheck], ["05", "Vendedor", "Recebe conforme as regras", Store]].map(([number, title, caption, Icon]) => { const Component = Icon as typeof Users; return <div className="vertical-flow-item" key={title as string}><span className="flow-number">{number as string}</span><span className="vertical-flow-icon"><Component size={17} /></span><div><strong>{title as string}</strong><small>{caption as string}</small></div>{title === "Checkout BidX" && <span className="flow-highlight">ponto de confiança</span>}</div>; })}</div></div><div className="how-side"><div className="how-side-card"><div className="side-card-icon"><ShieldCheck size={21} /></div><span className="eyebrow">Modelo proposto</span><h3>O pagamento vira parte da experiência, não uma tela isolada.</h3><p>O objetivo é criar estados claros para compra, entrega, confirmação e resolução de problemas — sem prometer uma proteção que ainda não existe.</p><div className="side-card-footer"><span className="status-pulse" /> Fluxo planejado para validação</div></div><div className="how-mini-grid"><div><span className="mini-label">comprador</span><b>decide com contexto</b></div><div><span className="mini-label">BidX</span><b>organiza o fluxo</b></div><div><span className="mini-label">vendedor</span><b>acompanha o pedido</b></div><div><span className="mini-label">futuro</span><b>resolve exceções</b></div></div></div></div></div></section>
+
+      <section className="section pillars-section"><div className="container"><SectionHeading eyebrow="03 / três pilares" title="Um produto, três formas de gerar valor" description="A arquitetura de experiência separa necessidades diferentes sem quebrar a continuidade da plataforma." /><div className="pillars-grid">{pillars.map(({ eyebrow, title, description, icon: Icon, tone, features }) => <article className={`pillar-card pillar-${tone}`} key={title}><div className="pillar-card-top"><span className="pillar-icon"><Icon size={21} /></span><span className="pillar-index">{eyebrow}</span></div><h3>{title}</h3><p>{description}</p><div className="pillar-mockup">{tone === "blue" && <><div className="mock-search"><span /><span /><b><Search size={13} /></b></div><div className="mock-product-row"><span className="mock-product-image" /><span /><span /><span /></div><div className="mock-product-row short"><span className="mock-product-image" /><span /><span /></div></>}{tone === "lime" && <><div className="mock-auction-top"><span>lance atual</span><b>R$ 1.240</b><i>02:14:38</i></div><div className="mock-bid-line"><span /><span /><span /></div><div className="mock-bid-line"><span /><span /><span /></div></>}{tone === "violet" && <><div className="mock-digital-header"><span className="digital-box">D</span><span /><i>entrega digital</i></div><div className="mock-chat"><span /><b /><span /></div><div className="mock-chat reply"><span /><b /></div></>}</div><ul>{features.map(feature => <li key={feature}><Check size={14} /> {feature}</li>)}</ul><ArrowLink href="#proximos-passos">Explorar pilar</ArrowLink></article>)}</div></div></section>
+
+      <section className="section buyer-section"><div className="container"><SectionHeading eyebrow="04 / experiência do comprador" title="Comprar deve parecer uma decisão segura" description="Uma página de produto bem resolvida reduz dúvida, organiza expectativas e dá clareza para a próxima ação." /><BuyerProductMockup /></div></section>
+
+      <section className="section seller-section"><div className="container"><div className="section-intro-row"><SectionHeading dark eyebrow="05 / experiência do vendedor" title="De publicar um anúncio a operar uma loja" description="O vendedor precisa de visão do todo: produtos, pedidos, leilões, conversas, reputação e desempenho." /><div className="section-stamp"><span className="stamp-number">06</span><span>domínios<br />conectados</span></div></div><SellerDashboardMockup /></div></section>
+
+      <section className="section auction-section" id="leiloes"><div className="container"><SectionHeading eyebrow="06 / leilões" title="Negociação com ritmo, regra e transparência" description="O leilão é uma parte central do BidX. O futuro fluxo precisa tornar cada lance compreensível e confiável." /><AuctionDemo /></div></section>
+
+      <section className="section digital-section"><div className="container"><div className="digital-layout"><div className="digital-copy"><SectionHeading eyebrow="07 / economia digital" title="Produtos digitais pedem uma experiência própria" description="Entrega automática, entrega manual e serviços podem conviver no BidX — desde que o fluxo seja claro sobre o que é proposta, planejado ou futuro." /><div className="digital-badges"><TinyTag tone="violet">proposta</TinyTag><TinyTag tone="blue">planejado</TinyTag><TinyTag tone="lime">futuro</TinyTag></div><ArrowLink href="#roadmap">Ver quando entra no roadmap</ArrowLink></div><div className="digital-flow-card"><div className="digital-flow-head"><span className="eyebrow">produto digital / exemplo</span><span className="future-label">FUTURO</span></div><div className="digital-flow"><div className="digital-flow-step active"><span className="digital-step-icon"><Tag size={16} /></span><b>Compra</b><small>Pedido iniciado</small></div><span className="digital-connector" /><div className="digital-flow-step active"><span className="digital-step-icon"><Check size={16} /></span><b>Pagamento aprovado</b><small>Estado confirmado</small></div><span className="digital-connector" /><div className="digital-flow-step"><span className="digital-step-icon"><Sparkles size={16} /></span><b>Entrega digital</b><small>Automática ou manual</small></div><span className="digital-connector" /><div className="digital-flow-step"><span className="digital-step-icon"><MessageSquare size={16} /></span><b>Chat do pedido</b><small>Contexto preservado</small></div></div><div className="digital-options"><span><Check size={13} /> Entrega automática</span><span><Check size={13} /> Entrega manual</span><span><Check size={13} /> Chat relacionado</span></div></div></div></div></section>
+
+      <section className="section dark-section protection-section" id="protecao"><div className="container"><SectionHeading dark eyebrow="08 / proteção da transação" title="Confiança é um fluxo, não uma promessa" description="O objetivo é intermediar a transação e criar mecanismos claros para tratar problemas entre comprador e vendedor — sem antecipar garantias jurídicas." /><div className="protection-diagram"><div className="protection-path"><div><span className="protection-node-icon"><Users size={18} /></span><b>Comprador</b><small>escolhe</small></div><i /><div><span className="protection-node-icon"><WalletCards size={18} /></span><b>Pagamento</b><small>é aprovado</small></div><i className="active-line" /><div className="protection-node active"><span className="protection-node-icon"><ShieldCheck size={18} /></span><b>BidX</b><small>intermedeia</small></div><i className="active-line" /><div><span className="protection-node-icon"><PackageCheck size={18} /></span><b>Entrega</b><small>acontece</small></div><i /><div><span className="protection-node-icon"><Store size={18} /></span><b>Vendedor</b><small>recebe conforme as regras</small></div></div><div className="dispute-flow"><div className="dispute-title"><span className="eyebrow">Se houver um problema</span><span className="dispute-hint">fluxo planejado</span></div><div className="dispute-steps"><span>Tenho um problema</span><ArrowRight size={15} /><span>Disputa</span><ArrowRight size={15} /><span>Análise</span><ArrowRight size={15} /><span>Resolução</span></div></div></div></div></section>
+
+      <section className="section reputation-section"><div className="container"><div className="reputation-layout"><div><SectionHeading eyebrow="09 / reputação" title="Reputação construída por transações reais" description="O sistema futuro poderá transformar compras concluídas em sinais de confiança para compradores e vendedores." /><div className="reputation-note"><BadgeCheck size={16} /><span>Os números abaixo são um exemplo visual de demonstração, não dados reais do BidX.</span></div></div><div className="seller-profile-card"><div className="profile-top"><div className="profile-avatar">LE</div><div><span className="profile-example">perfil exemplo</span><h3>Loja Exemplo</h3><span className="profile-location"><Globe2 size={13} /> Brasil</span></div><button aria-label="Mais opções">···</button></div><div className="profile-score"><div><b>98%</b><span>avaliações positivas</span></div><div><b>1.248</b><span>vendas</span></div><div><b>4.9</b><span>de 5</span></div></div><div className="profile-metrics"><div><span>Tempo médio de resposta</span><b>8 min</b></div><div><span>Taxa de conclusão</span><b>99%</b></div></div><div className="profile-footer"><span className="verified-line"><BadgeCheck size={15} /> verificações planejadas</span><ArrowUpRight size={15} /></div></div></div></div></section>
+
+      <section className="section monetization-section"><div className="container"><SectionHeading eyebrow="10 / monetização" title="Começar simples. Criar opções com o tempo." description="As condições comerciais ainda serão definidas. O modelo abaixo apresenta possibilidades sem copiar preços ou planos de outras plataformas." /><div className="monetization-grid"><div className="money-card featured"><div className="money-card-head"><span className="money-index">01</span><TinyTag tone="blue">modelo inicial</TinyTag></div><h3>Comissão sobre vendas</h3><p>O vendedor publica gratuitamente. O BidX participa quando uma venda acontece.</p><div className="money-flow"><span>Venda</span><ArrowDown size={16} /><strong>Comissão BidX</strong><ArrowDown size={16} /><span>Restante ao vendedor</span></div></div><div className="money-card"><div className="money-card-head"><span className="money-index">02</span><TinyTag tone="violet">depois</TinyTag></div><h3>Destaques</h3><p>Vendedores podem pagar para aumentar a visibilidade de anúncios específicos.</p><div className="money-icon-grid"><span><Eye size={16} /> Mais alcance</span><span><Tag size={16} /> Mais contexto</span></div></div><div className="money-card"><div className="money-card-head"><span className="money-index">03</span><TinyTag tone="lime">a definir</TinyTag></div><h3>Planos profissionais</h3><p>Ferramentas adicionais para vendedores que precisam operar com mais escala.</p><div className="plan-row"><span>Básico</span><span>Profissional</span><span>Avançado</span></div></div></div></div></section>
+
+      <section className="section dark-section roadmap-section" id="roadmap"><div className="container"><div className="roadmap-heading-row"><SectionHeading dark eyebrow="11 / roadmap" title="Construir na ordem certa" description="Um roadmap real reduz risco: primeiro a fundação, depois as experiências que tornam o produto escalável." /><div className="roadmap-control"><button onClick={() => setActiveRoadmap(value => Math.max(0, value - 1))} disabled={activeRoadmap === 0} aria-label="Fase anterior"><ChevronLeft size={17} /></button><span>0{activeRoadmap + 1} / 08</span><button onClick={() => setActiveRoadmap(value => Math.min(roadmap.length - 1, value + 1))} disabled={activeRoadmap === roadmap.length - 1} aria-label="Próxima fase"><ChevronRight size={17} /></button></div></div><div className="roadmap-track"><div className="roadmap-progress" style={{ width: `${((activeRoadmap + 1) / roadmap.length) * 100}%` }} />{roadmap.map((item, index) => <button className={`roadmap-node ${index === activeRoadmap ? "active" : ""} ${index < activeRoadmap ? "visited" : ""}`} onClick={() => setActiveRoadmap(index)} key={item.phase}><span>{item.phase}</span><b>{item.title}</b></button>)}</div><div className="roadmap-detail"><div className="roadmap-detail-main"><div className="roadmap-big-number">{roadmap[activeRoadmap].phase}</div><div><span className="future-label">{roadmap[activeRoadmap].status}</span><h3>{roadmap[activeRoadmap].title}</h3><p>{roadmap[activeRoadmap].description}</p></div></div><div className="roadmap-detail-items">{roadmap[activeRoadmap].items.map(item => <span key={item}><Check size={14} /> {item}</span>)}</div></div></div></section>
+
+      <section className="section architecture-section" id="arquitetura"><div className="container"><SectionHeading eyebrow="12 / arquitetura do produto" title="Módulos que se conectam em torno da transação" description="Não é código. É a visão de domínio que mantém experiência, regra de negócio e infraestrutura evoluindo juntos." /><ArchitectureDiagram /></div></section>
+
+      <section className="section next-section" id="proximos-passos"><div className="container"><div className="next-card"><div className="next-copy"><span className="eyebrow">13 / próximos passos</span><h2>Começar pela fundação.</h2><p>O objetivo não é construir tudo de uma vez. É construir uma base sólida e evoluir o BidX por etapas.</p><button className="button button-light" onClick={() => setShowPlanDetails(value => !value)}>{showPlanDetails ? "Ocultar checklist" : "Abrir checklist"}{showPlanDetails ? <ChevronDown size={16} /> : <ArrowRight size={16} />}</button></div><div className={`checklist ${showPlanDetails ? "is-visible" : ""}`} aria-hidden={!showPlanDetails}>{["Validar a visão do produto", "Auditar o sistema atual", "Definir regras comerciais", "Definir modelo de monetização", "Definir regras de vendas e disputas", "Definir arquitetura", "Redesenhar a experiência", "Começar implementação por fases"].map((item, index) => <CheckRow key={item} done={index < 2}>{item}</CheckRow>)}</div><div className="next-orbit"><span>Bid</span><b>X</b><i /><i /><i /></div></div></div></section>
+    </main>
+    <footer className="site-footer"><div className="container footer-main"><div className="footer-brand"><a href="#top" className="brand"><span>Bid</span><b>X</b></a><p>Marketplace, leilões<br />e economia digital.</p></div><div className="footer-links"><div><span className="footer-label">Explorar</span>{navItems.map(item => <a href={item.href} key={item.href}>{item.label}</a>)}</div><div><span className="footer-label">Material</span><a href="#arquitetura">Arquitetura</a><a href="#roadmap">Roadmap</a><a href="#proximos-passos">Próximos passos</a></div><div><span className="footer-label">Status</span><span className="footer-status"><i /> apresentação</span><a href="https://github.com/t85683583-cloud/ideal-tribble" target="_blank" rel="noreferrer">GitHub <ArrowUpRight size={13} /></a></div></div></div><div className="container footer-bottom"><span>© 2026 BidX / apresentação de produto</span><span>Construído para evoluir.</span><a href="#top" aria-label="Voltar ao topo"><ArrowUpRight size={15} /></a></div></footer>
+  </div>;
 }
